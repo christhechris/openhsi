@@ -3,7 +3,7 @@
 # %% auto #0
 __all__ = ['SharedCircArrayBuffer', 'SharedDataCube', 'save_shared_datacube', 'SharedOpenHSI']
 
-# %% ../nbs/api/shared.ipynb #c9f01a6f
+# %% ../nbs/api/shared.ipynb #dce75cd0
 from fastcore.foundation import patch
 from fastcore.meta import delegates
 import numpy as np
@@ -15,13 +15,13 @@ from functools import reduce
 from pathlib import Path
 import xarray as xr
 
-# %% ../nbs/api/shared.ipynb #ab732ee1
+# %% ../nbs/api/shared.ipynb #5de1a75e
 from .data import CameraProperties, CircArrayBuffer, DateTimeBuffer, DataCube
 
 from ctypes import c_int32, c_uint32, c_float, c_uint16, c_uint8
 from multiprocessing import Process, Queue, Array
 
-# %% ../nbs/api/shared.ipynb #7924d1c9
+# %% ../nbs/api/shared.ipynb #437153d2
 class SharedCircArrayBuffer(CircArrayBuffer):
     """Circular FIFO Buffer implementation on multiprocessing.Array. Each put/get is a (n-1)darray."""
     
@@ -39,7 +39,7 @@ class SharedCircArrayBuffer(CircArrayBuffer):
         self.slots_left = self.size[self.axis]
         self.show_func = show_func
 
-# %% ../nbs/api/shared.ipynb #8f85ccac
+# %% ../nbs/api/shared.ipynb #647781a0
 @delegates()
 class SharedDataCube(CameraProperties):
     """Facilitates the collection, viewing, and saving of hyperspectral datacubes using
@@ -77,7 +77,7 @@ class SharedDataCube(CameraProperties):
         self.dc.put( self.pipeline(x) )
  
 
-# %% ../nbs/api/shared.ipynb #5075f2e4
+# %% ../nbs/api/shared.ipynb #971a2547
 @patch
 def save(self:SharedDataCube, save_dir:str, preconfig_meta_path:str=None, prefix:str="", suffix:str="", old_style:bool=True, savefig:bool=False) -> Process:
     """Saves to a NetCDF file (and RGB representation) to directory dir_path in folder given by date with file name given by UTC time.
@@ -113,11 +113,11 @@ def save(self:SharedDataCube, save_dir:str, preconfig_meta_path:str=None, prefix
     self.current_swap = 0 if self.current_swap == 1 else 1
     self.timestamps   = self.timestamps_swaps[self.current_swap]
     self.dc           = self.dc_swaps[self.current_swap]
-    if hasattr(self,"cam_temperatures"):
+    if hasattr(self,"cam_temperatures") and hasattr(self,"cam_temps_swaps"):
         self.cam_temperatures = self.cam_temps_swaps[self.current_swap]
     return p
 
-# %% ../nbs/api/shared.ipynb #58f073f3
+# %% ../nbs/api/shared.ipynb #1462921c
 @patch
 def show(self:SharedDataCube,
          plot_lib:str = "bokeh", # Plotting backend. This can be 'bokeh' or 'matplotlib'
@@ -176,7 +176,7 @@ def show(self:SharedDataCube,
         return rgb_hv.opts(fig_inches=22).opts(
             xlabel="along-track",ylabel="cross-track",invert_yaxis=True)
 
-# %% ../nbs/api/shared.ipynb #b392c10e
+# %% ../nbs/api/shared.ipynb #e6542f36
 def save_shared_datacube(fname:str,          # NetCDF4 file name (without .nc)
                          shared_array:Array, # multiprocessing.Array shared array 
                          c_dtype:type,       # numpy data type
@@ -250,7 +250,7 @@ def save_shared_datacube(fname:str,          # NetCDF4 file name (without .nc)
         fig.savefig(fname+".png",bbox_inches='tight', pad_inches=0)
     
 
-# %% ../nbs/api/shared.ipynb #abac0081
+# %% ../nbs/api/shared.ipynb #7278edcb
 @delegates()
 class SharedOpenHSI(SharedDataCube):
     """Base Class for the OpenHSI Camera."""

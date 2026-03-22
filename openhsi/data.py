@@ -3,7 +3,7 @@
 # %% auto #0
 __all__ = ['Shape', 'DType', 'Array', 'CircArrayBuffer', 'CameraProperties', 'DateTimeBuffer', 'DataCube']
 
-# %% ../nbs/api/data.ipynb #bef44363
+# %% ../nbs/api/data.ipynb #e78cb750
 from fastcore.foundation import patch
 from fastcore.meta import delegates
 from fastcore.basics import listify
@@ -29,7 +29,7 @@ import pprint
 import holoviews as hv
 hv.extension("bokeh",logo=False)
 
-# %% ../nbs/api/data.ipynb #407bbbde
+# %% ../nbs/api/data.ipynb #13bc395f
 # numpy.ndarray type hints
 Shape = TypeVar("Shape"); DType = TypeVar("DType")
 class Array(np.ndarray, Generic[Shape, DType]):
@@ -42,7 +42,7 @@ class Array(np.ndarray, Generic[Shape, DType]):
     """
     pass
 
-# %% ../nbs/api/data.ipynb #3f481dee
+# %% ../nbs/api/data.ipynb #b9cce925
 class CircArrayBuffer():
     """Circular FIFO Buffer implementation on ndarrays. Each put/get is a (n-1)darray."""
     
@@ -113,7 +113,7 @@ class CircArrayBuffer():
         else:
             print("Unsupported array shape. Please use 2D or 3D shapes or use your own custom show function")
 
-# %% ../nbs/api/data.ipynb #fb7852dc
+# %% ../nbs/api/data.ipynb #343dca01
 class CameraProperties():
     """Save and load OpenHSI camera settings and calibration"""
     def __init__(self, 
@@ -169,7 +169,7 @@ class CameraProperties():
         else:
             self.calibration = {}
 
-        # overide any settings from settings file with keywords value pairs.
+        # override any settings from settings file with keywords value pairs.
         for key,value in kwargs.items():
             if key in self.settings.keys(): 
                 self.settings[key] = value
@@ -197,7 +197,7 @@ class CameraProperties():
         if use_pickle: # must provide filename for pickle.
             warnings.warn(
                 "Pickle calibration files are deprecated and will be removed in a "
-                "future version. We sugesting using the .nc format using `.dump()` "
+                "future version. We suggest using the .nc format using `.dump()` "
                 "(which now saves to .nc by default).",
                 DeprecationWarning,
                 stacklevel=2
@@ -282,7 +282,7 @@ class CameraProperties():
         ds.close()
 
 
-# %% ../nbs/api/data.ipynb #3fa5510c
+# %% ../nbs/api/data.ipynb #721c7fcf
 @patch
 def tfm_setup(self:CameraProperties, 
               more_setup:Callable[[CameraProperties],None] = None, 
@@ -362,13 +362,13 @@ def tfm_setup(self:CameraProperties,
     if more_setup is not None:
         more_setup(self)
 
-# %% ../nbs/api/data.ipynb #0e80feea
+# %% ../nbs/api/data.ipynb #6be28dc6
 @patch
 def crop(self:CameraProperties, x:np.ndarray) -> np.ndarray:
     """Crops to illuminated area"""
     return x[self.settings["row_slice"][0]:self.settings["row_slice"][1],:]
 
-# %% ../nbs/api/data.ipynb #fb932045
+# %% ../nbs/api/data.ipynb #4881402e
 @patch
 def fast_smile(self:CameraProperties, x:np.ndarray) -> np.ndarray:
     """Apply the fast smile correction procedure"""
@@ -376,7 +376,7 @@ def fast_smile(self:CameraProperties, x:np.ndarray) -> np.ndarray:
             self.line_buff.put(x[i,self.calibration["smile_shifts"][i]:self.calibration["smile_shifts"][i]+self.smiled_size[1]])
     return self.line_buff.data
 
-# %% ../nbs/api/data.ipynb #9a0291eb
+# %% ../nbs/api/data.ipynb #ae7116fa
 @patch
 def fast_bin(self:CameraProperties, x:np.ndarray) -> np.ndarray:
     """Changes the view of the datacube so that everything that needs to be binned is in the last axis. The last axis is then binned."""
@@ -385,7 +385,7 @@ def fast_bin(self:CameraProperties, x:np.ndarray) -> np.ndarray:
                         strides=(self.bin_cols*byte_sz,self.width*byte_sz,byte_sz))
     return buff.sum(axis=-1)
 
-# %% ../nbs/api/data.ipynb #0783d80c
+# %% ../nbs/api/data.ipynb #36c5a628
 @patch
 def slow_bin(self:CameraProperties, x:np.ndarray) -> np.ndarray:
     """Bins spectral bands accounting for the slight nonlinearity in the index-wavelength map"""
@@ -393,14 +393,14 @@ def slow_bin(self:CameraProperties, x:np.ndarray) -> np.ndarray:
         self.bin_buff.put( np.float32(x[:,self.bin_idxs[i]:self.bin_idxs[i+1]]).sum(axis=1) )
     return self.bin_buff.data
 
-# %% ../nbs/api/data.ipynb #b8b3a603
+# %% ../nbs/api/data.ipynb #114d2e78
 @patch
 def dn2rad(self:CameraProperties, x:"Array['λ,x',np.uint16]") -> "Array['λ,x',np.float32]":
     """Converts digital numbers to radiance (uW/cm^2/sr/nm). Use after cropping to useable area."""
         
     return (np.float32(x) - self.dark_current) * self.settings["luminance"]/self.ref_luminance  *  self.spec_rad_ref/self.calibration['spec_rad_ref_luminance']                                               
 
-# %% ../nbs/api/data.ipynb #3b2e3e06
+# %% ../nbs/api/data.ipynb #eb5a8713
 @patch
 def rad2ref_6SV(self:CameraProperties, x:"Array['λ,x',np.float32]") -> "Array['λ,x',np.float32]":
     """"""
@@ -412,7 +412,7 @@ def rad2ref_6SV(self:CameraProperties, x:"Array['λ,x',np.float32]") -> "Array['
         
     return x/self.rad_6SV
 
-# %% ../nbs/api/data.ipynb #e4d08bc2
+# %% ../nbs/api/data.ipynb #d6223dc1
 @patch
 def set_processing_lvl(self:CameraProperties, lvl:int = -1, custom_tfms:List[Callable[[np.ndarray],np.ndarray]] = None):
     """Define the output `lvl` of the transform pipeline. Predefined recipies include:
@@ -475,7 +475,7 @@ def set_processing_lvl(self:CameraProperties, lvl:int = -1, custom_tfms:List[Cal
     else:
         self.dc_shape = (1,1) # unused. just for calibration when settings file needs creating
 
-# %% ../nbs/api/data.ipynb #51c7cf26
+# %% ../nbs/api/data.ipynb #ffae5c2e
 @patch
 def pipeline(self:CameraProperties, x:np.ndarray) -> np.ndarray:
     """Compose a list of transforms and apply to x."""
@@ -483,7 +483,7 @@ def pipeline(self:CameraProperties, x:np.ndarray) -> np.ndarray:
         x = f(x)
     return x
 
-# %% ../nbs/api/data.ipynb #704a097e
+# %% ../nbs/api/data.ipynb #a69b73cf
 class DateTimeBuffer:
     """Records timestamps in UTC time as datetime64[ns] for efficient storage and conversion."""
     
@@ -530,11 +530,11 @@ class DateTimeBuffer:
             self.count += 1
             
 
-# %% ../nbs/api/data.ipynb #7ca14781
+# %% ../nbs/api/data.ipynb #9475e156
 from functools import reduce
 import psutil
 
-# %% ../nbs/api/data.ipynb #1a23df8e
+# %% ../nbs/api/data.ipynb #b141fe20
 @delegates()
 class DataCube(CameraProperties):
     """Facilitates the collection, viewing, and saving of hyperspectral datacubes."""
@@ -564,14 +564,14 @@ class DataCube(CameraProperties):
     def __repr__(self):
         return f"DataCube: shape = {self.dc_shape}, Processing level = {self.proc_lvl}\n"
 
-# %% ../nbs/api/data.ipynb #b3cefe35
+# %% ../nbs/api/data.ipynb #a89efacc
 @patch
 def put(self:DataCube, x:np.ndarray):
     """Applies the composed tranforms and writes the 2D array into the data cube. Stores a timestamp for each push."""
     self.timestamps.update()
     self.dc.put( self.pipeline(x) )
 
-# %% ../nbs/api/data.ipynb #5fc7acb0
+# %% ../nbs/api/data.ipynb #4c805270
 @patch
 def to_xarray(self:DataCube, 
               metadata:dict = None,      # Optional metadata dictionary to include as attrs
@@ -643,7 +643,7 @@ def to_xarray(self:DataCube,
 
     return self.nc
 
-# %% ../nbs/api/data.ipynb #5a9c51b3
+# %% ../nbs/api/data.ipynb #8fb0b8ad
 @patch
 def save(self:DataCube, 
          save_dir:str,                 # Path to folder where all datacubes will be saved at
@@ -675,7 +675,7 @@ def save(self:DataCube,
     
     return (nc_save_path, png_save_path)
 
-# %% ../nbs/api/data.ipynb #830f1a7a
+# %% ../nbs/api/data.ipynb #ea8a707c
 @patch
 def show(self:DataCube, 
          plot_lib:str = "bokeh", # Plotting backend. This can be 'bokeh' or 'matplotlib'
@@ -745,7 +745,7 @@ def show(self:DataCube,
         return rgb_hv.opts(fig_inches=22).opts(
             xlabel="along-track",ylabel="cross-track",invert_yaxis=True)
 
-# %% ../nbs/api/data.ipynb #ff74bd80
+# %% ../nbs/api/data.ipynb #2cdb4ebd
 @patch
 def load_nc(self:DataCube, 
             nc_path:str,            # Path to a NetCDF4 file

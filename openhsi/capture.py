@@ -3,7 +3,7 @@
 # %% auto #0
 __all__ = ['OpenHSI', 'ProcessRawDatacube', 'ProcessDatacube']
 
-# %% ../nbs/api/capture.ipynb #9dd5ff6c
+# %% ../nbs/api/capture.ipynb #23ec2c7b
 from fastcore.foundation import patch
 from fastcore.meta import delegates
 import xarray as xr
@@ -19,10 +19,10 @@ from typing import Iterable, Union, Callable, List, TypeVar, Generic, Tuple, Opt
 import json
 import pickle
 
-# %% ../nbs/api/capture.ipynb #0ace11c8
+# %% ../nbs/api/capture.ipynb #1a8f8cee
 from .data import DataCube, CircArrayBuffer
 
-# %% ../nbs/api/capture.ipynb #91b016d5
+# %% ../nbs/api/capture.ipynb #157222ca
 @delegates()
 class OpenHSI(DataCube):
     """Base Class for the OpenHSI Camera."""
@@ -73,7 +73,7 @@ class OpenHSI(DataCube):
         self.stop_cam()
         return np.mean(data,axis=2)
 
-# %% ../nbs/api/capture.ipynb #3cdb2828
+# %% ../nbs/api/capture.ipynb #ae1c5e1a
 class ProcessRawDatacube(OpenHSI):
     """Post-process datacubes"""
     def __init__(self, fname:str, processing_lvl:int, json_path:str, cal_path:str, old_style:bool=False):
@@ -109,13 +109,13 @@ class ProcessRawDatacube(OpenHSI):
             self.cam_temperatures.data = self.buff.ds_temperatures
         super().save(save_dir=save_dir, **kwargs)
 
-# %% ../nbs/api/capture.ipynb #9deddba1
+# %% ../nbs/api/capture.ipynb #0c198911
 @delegates()
 class ProcessDatacube(ProcessRawDatacube):
     """Post-process datacubes"""
     def __init__(self, fname:str, processing_lvl:int, json_path:str, cal_path:str, old_style:bool=False, **kwargs):
         """Post-process datacubes further!"""
-        super().__init__(**kwargs)
+        super().__init__(fname=fname, processing_lvl=processing_lvl, json_path=json_path, cal_path=cal_path, old_style=old_style, **kwargs)
     
     def load_next_tfms(self, next_tfms:List[Callable[[np.ndarray],np.ndarray]] = None):
         """provide the transforms you want to apply to this dataset"""
@@ -123,7 +123,7 @@ class ProcessDatacube(ProcessRawDatacube):
         self.tfm_list = next_tfms
         
 
-# %% ../nbs/api/capture.ipynb #497a3d30
+# %% ../nbs/api/capture.ipynb #66b0fc50
 _DEPRECATED_CLASSES = {
     'SharedSimulatedCamera': 'openhsi.cameras',
     'SimulatedCamera': 'openhsi.cameras'
