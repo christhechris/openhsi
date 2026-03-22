@@ -4,11 +4,9 @@ pandas
 numpy
 scipy
 matplotlib
-fastcore
 fastprogress
 
 pillow
-pandas
 tqdm
 bokeh
 holoviews
